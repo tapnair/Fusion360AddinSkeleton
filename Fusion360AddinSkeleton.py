@@ -2,34 +2,47 @@
 # Could import multiple Command definitions here
 from .Fusion360Command import Fusion360Command
 
+commands = []
+command_defs =[]
+
 #### Define parameters for 1st command #####
-commandName1 = 'Demo Command 1'
-commandDescription1 = 'Demo Command 1 Description'
-commandResources1 = './resources'
-cmdId1 = 'cmdID_Demo_1'
-myWorkspace1 = 'FusionSolidEnvironment'
-myToolbarPanelID1 = 'SolidScriptsAddinsPanel'
+cmd = {
+        'commandName' : 'Demo Command 1',
+        'commandDescription' : 'Demo Command 1 Description',
+        'commandResources' : './resources',
+        'cmdId' : 'cmdID_Demo_1',
+        'workspace' : 'FusionSolidEnvironment',
+        'toolbarPanelID' : 'SolidScriptsAddinsPanel',
+        'class' : Fusion360Command
+}
+command_defs.append(cmd)
 
 #### Define parameters for 2nd command #####
-commandName2 = 'Demo Command 2'
-commandDescription2 = 'Demo Command 1 Description'
-commandResources2 = './resources'
-cmdId2 = 'cmdID_Demo_2'
-myWorkspace2 = 'FusionSurfaceEnvironment'
-myToolbarPanelID2 = 'SurfaceCreatePanel'
+cmd = {
+        'commandName' : 'Demo Command 2',
+        'commandDescription' : 'Demo Command 2 Description',
+        'commandResources' : './resources',
+        'cmdId' : 'cmdID_Demo_2',
+        'workspace' : 'FusionSurfaceEnvironment',
+        'toolbarPanelID' : 'SurfaceCreatePanel',
+        'class' : Fusion360Command
+}
+command_defs.append(cmd)
 
 # Set to True to display various useful messages when debugging your app
 debug = False
 
-# Creates the commands for use in the Fusion 360 UI
-newCommand1 = Fusion360Command(commandName1, commandDescription1, commandResources1, cmdId1, myWorkspace1, myToolbarPanelID1, debug)
-newCommand2 = Fusion360Command(commandName2, commandDescription2, commandResources2, cmdId2, myWorkspace2, myToolbarPanelID2, debug)
 
+#### Don't change anything below here:
+for cmd_def in command_defs:
+    command = cmd_def['class'](cmd_def['commandName'], cmd_def['commandDescription'], cmd_def['commandResources'], cmd_def['cmdId'], cmd_def['workspace'], cmd_def['toolbarPanelID'], debug)
+    commands.append(command)
 
 def run(context):
-    newCommand1.onRun()
-    newCommand2.onRun()
+    for command in commands:
+        command.onRun()
+
+
 def stop(context):
-    newCommand1.onStop()
-    newCommand2.onStop()
-    
+    for command in commands:
+        command.onStop()

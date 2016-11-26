@@ -3,6 +3,8 @@ import adsk.core, adsk.fusion, traceback
 from .Fusion360CommandBase import Fusion360CommandBase
 
 ############# Create your Actions Here #################################################
+
+## The following will define a command in a tool bar panel
 class Fusion360Command(Fusion360CommandBase):
     
     # Runs when Fusion command would generate a preview after all inputs are valid or changed
@@ -29,3 +31,6 @@ class Fusion360Command(Fusion360CommandBase):
         inputs.addBoolValueInput('boolvalueInput_', '***Sample***Checked', True)
         inputs.addStringValueInput('stringValueInput_', '***Sample***String Value', 'Default value')
         inputs.addSelectionInput('selectionInput', '***Sample***Selection', 'Select one')
+        
+        
+        
