@@ -97,15 +97,19 @@ def commandControlById_in_Panel(cmdId, ToolbarPanel):
 # Base Class for creating Fusion 360 Commands
 class Fusion360CommandBase:
     
-    def __init__(self, commandName, commandDescription, commandResources, cmdId, myWorkspace, myToolbarPanelID, debug):
-        self.commandName = commandName
-        self.commandDescription = commandDescription
-        self.commandResources = commandResources
-        self.cmdId = cmdId
-        self.myWorkspace = myWorkspace
-        self.myToolbarPanelID = myToolbarPanelID
+    def __init__(self, cmd_def, debug):
+
+        self.commandName = cmd_def.get('commandName', 'Default Command Name')
+        self.commandDescription = cmd_def.get('commandDescription', 'Default Command Description')
+        self.commandResources = cmd_def.get('commandResources', './resources')
+        self.cmdId = cmd_def.get('cmdId', 'Default Command ID')
+        self.workspace = cmd_def.get('workspace', 'FusionSolidEnvironment')
+        self.toolbarPanelID = cmd_def.get('toolbarPanelID', 'SolidScriptsAddinsPanel')
+        self.DC_CmdId = cmd_def.get('DC_CmdId', 'Default_DC_CmdId')
+        self.DC_Resources = cmd_def.get('DC_Resources', './resources')
+        self.command_in_nav_bar = cmd_def.get('command_in_nav_bar', False)
         self.debug = debug
-        self.DC_CmdId = 'Show Hidden'
+
         
         # global set of event handlers to keep them referenced for the duration of the command
         self.handlers = []
@@ -136,12 +140,31 @@ class Fusion360CommandBase:
             app = adsk.core.Application.get()
             ui = app.userInterface
             commandDefinitions_ = ui.commandDefinitions
-    
-            toolbarPanel_ = toolbarPanelById_in_Workspace(self.myWorkspace, self.myToolbarPanelID)              
-            allToolbarPanelControls_ = toolbarPanel_.controls               
-            toolbarPanelControl_ = allToolbarPanelControls_.itemById(self.cmdId)
-
-            if not toolbarPanelControl_:
+            
+            # Add command to drop down in nav bar
+            if self.command_in_nav_bar:
+                
+                toolbars_ = ui.toolbars
+                navBar = toolbars_.itemById('NavToolbar')
+                toolbarControlsNAV = navBar.controls
+                
+                dropControl = toolbarControlsNAV.itemById(self.DC_CmdId) 
+                
+                if not dropControl:             
+                    dropControl = toolbarControlsNAV.addDropDown(self.DC_CmdId, self.DC_Resources, self.DC_CmdId) 
+                
+                controls_to_add_to = dropControl.controls
+                
+                newControl_ = toolbarControlsNAV.itemById(self.cmdId)
+            
+            # Add command to workspace panel
+            else:
+                toolbarPanel_ = toolbarPanelById_in_Workspace(self.workspace, self.toolbarPanelID)              
+                controls_to_add_to = toolbarPanel_.controls               
+                newControl_ = controls_to_add_to.itemById(self.cmdId)
+            
+            # If control does not exist, create it
+            if not newControl_:
                 commandDefinition_ = commandDefinitions_.itemById(self.cmdId)
                 if not commandDefinition_:
                     commandDefinition_ = commandDefinitions_.addButtonDefinition(self.cmdId, self.commandName, self.commandDescription, self.commandResources)
@@ -150,24 +173,46 @@ class Fusion360CommandBase:
                 commandDefinition_.commandCreated.add(onCommandCreatedHandler_)
                 handlers.append(onCommandCreatedHandler_)
                 
-                toolbarPanelControl_ = allToolbarPanelControls_.addCommand(commandDefinition_)
-                toolbarPanelControl_.isVisible = True
+                newControl_ = controls_to_add_to.addCommand(commandDefinition_)
+                newControl_.isVisible = True
         
         except:
             if ui:
                 ui.messageBox('AddIn Start Failed: {}'.format(traceback.format_exc()))
+
+
+    
+            
+
 
     def onStop(self):
         try:
             app = adsk.core.Application.get()
             ui = app.userInterface
 
-            toolbarPanel_ = toolbarPanelById_in_Workspace(self.myWorkspace, self.myToolbarPanelID)
             
-            commandControlPanel_ = commandControlById_in_Panel(self.cmdId, toolbarPanel_)
-            commandDefinitionPanel_ = commandDefinitionById(self.cmdId)
-            destroyObject(commandControlPanel_)
-            destroyObject(commandDefinitionPanel_)
+            
+            
+            # Remove command from nav bar
+            if self.command_in_nav_bar:
+                dropDownControl_ = commandControlById_in_NavBar(self.DC_CmdId)
+                commandControlNav_ = commandControlById_in_DropDown(self.cmdId, dropDownControl_)
+                commandDefinitionNav_ = commandDefinitionById(self.cmdId)
+                destroyObject(commandControlNav_)
+                destroyObject(commandDefinitionNav_)
+                
+                if dropDownControl_.controls.count == 0:
+                    commandDefinition_DropDown = commandDefinitionById(self.DC_CmdId)
+                    destroyObject(dropDownControl_)
+                    destroyObject(commandDefinition_DropDown)
+            
+            # Remove command from workspace panel
+            else:
+                toolbarPanel_ = toolbarPanelById_in_Workspace(self.workspace, self.toolbarPanelID)         
+                commandControlPanel_ = commandControlById_in_Panel(self.cmdId, toolbarPanel_)
+                commandDefinitionPanel_ = commandDefinitionById(self.cmdId)
+                destroyObject(commandControlPanel_)
+                destroyObject(commandDefinitionPanel_)
 
         except:
             if ui:

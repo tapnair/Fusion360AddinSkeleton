@@ -35,7 +35,7 @@ debug = False
 
 #### Don't change anything below here:
 for cmd_def in command_defs:
-    command = cmd_def['class'](cmd_def['commandName'], cmd_def['commandDescription'], cmd_def['commandResources'], cmd_def['cmdId'], cmd_def['workspace'], cmd_def['toolbarPanelID'], debug)
+    command = cmd_def['class'](cmd_def, debug)
     commands.append(command)
 
 def run(context):
