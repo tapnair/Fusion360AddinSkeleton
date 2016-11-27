@@ -1,4 +1,3 @@
-
 import adsk.core, adsk.fusion, traceback
 
 handlers = [] 
@@ -180,19 +179,11 @@ class Fusion360CommandBase:
             if ui:
                 ui.messageBox('AddIn Start Failed: {}'.format(traceback.format_exc()))
 
-
-    
-            
-
-
     def onStop(self):
         try:
             app = adsk.core.Application.get()
             ui = app.userInterface
 
-            
-            
-            
             # Remove command from nav bar
             if self.command_in_nav_bar:
                 dropDownControl_ = commandControlById_in_NavBar(self.DC_CmdId)
@@ -217,100 +208,6 @@ class Fusion360CommandBase:
         except:
             if ui:
                 ui.messageBox('AddIn Stop Failed: {}'.format(traceback.format_exc()))
-
-# Intended to create commands in a drop down menu in the nav bar    
-class Fusion360NavCommandBase:
-    
-    def __init__(self, commandName, commandDescription, commandResources, cmdId, DC_CmdId, DC_Resources, debug):
-        self.commandName = commandName
-        self.commandDescription = commandDescription
-        self.commandResources = commandResources
-        self.cmdId = cmdId
-        self.debug = debug
-        self.DC_CmdId = DC_CmdId
-        self.DC_Resources = DC_Resources
-        
-        # global set of event handlers to keep them referenced for the duration of the command
-        self.handlers = []
-        
-        try:
-            self.app = adsk.core.Application.get()
-            self.ui = self.app.userInterface
-
-        except:
-            if self.ui:
-                self.ui.messageBox('Couldn\'t get app or ui: {}'.format(traceback.format_exc()))
-
-    def onPreview(self, command, inputs):
-        pass
-    
-    def onDestroy(self, command, inputs, reason_):    
-        pass
-    
-    def onInputChanged(self, command, inputs, changedInput):
-        pass
-    def onExecute(self, command, inputs):
-        pass
-    def onCreate(self, command, inputs):
-        pass
-     
-    def onRun(self):
-        global handlers
-
-        try:
-            app = adsk.core.Application.get()
-            ui = app.userInterface
-            commandDefinitions_ = ui.commandDefinitions
-                
-            toolbars_ = ui.toolbars
-            navBar = toolbars_.itemById('NavToolbar')
-            toolbarControlsNAV = navBar.controls
-            
-            dropControl = toolbarControlsNAV.itemById(self.DC_CmdId) 
-            
-            if not dropControl:             
-                dropControl = toolbarControlsNAV.addDropDown(self.DC_CmdId, self.DC_Resources, self.DC_CmdId) 
-            
-            NAV_Control = toolbarControlsNAV.itemById(self.cmdId)
-            
-            if not NAV_Control:
-                commandDefinition_ = commandDefinitions_.itemById(self.cmdId)
-                if not commandDefinition_:
-                    # commandDefinitionNAV = cmdDefs.addSplitButton(showAllBodiesCmdId, otherCmdDefs, True)
-                    commandDefinition_ = commandDefinitions_.addButtonDefinition(self.cmdId, self.commandName, self.commandDescription, self.commandResources)
-                
-                onCommandCreatedHandler_ = CommandCreatedEventHandler(self)
-                commandDefinition_.commandCreated.add(onCommandCreatedHandler_)
-                handlers.append(onCommandCreatedHandler_)
-                
-                
-                NAV_Control = dropControl.controls.addCommand(commandDefinition_)
-                NAV_Control.isVisible = True
-        
-        except:
-            if ui:
-                ui.messageBox('AddIn Start Failed: {}'.format(traceback.format_exc()))
-
-    
-    def onStop(self):
-        ui = None
-        try:
-            
-            dropDownControl_ = commandControlById_in_NavBar(self.DC_CmdId)
-            commandControlNav_ = commandControlById_in_DropDown(self.cmdId, dropDownControl_)
-            commandDefinitionNav_ = commandDefinitionById(self.cmdId)
-            destroyObject(commandControlNav_)
-            destroyObject(commandDefinitionNav_)
-            
-            if dropDownControl_.controls.count == 0:
-                commandDefinition_DropDown = commandDefinitionById(self.DC_CmdId)
-                destroyObject(dropDownControl_)
-                destroyObject(commandDefinition_DropDown)
-             
-        except:
-            if ui:
-                ui.messageBox('AddIn Stop Failed: {}'.format(traceback.format_exc()))
-
 
 class ExecutePreviewHandler(adsk.core.CommandEventHandler):
     def __init__(self, myObject):
