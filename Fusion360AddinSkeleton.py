@@ -33,16 +33,16 @@ command_defs.append(cmd)
 debug = False
 
 
-#### Don't change anything below here:
+# Don't change anything below here:
 for cmd_def in command_defs:
     command = cmd_def['class'](cmd_def, debug)
     commands.append(command)
 
 def run(context):
     for command in commands:
-        command.onRun()
+        command.on_run()
 
 
 def stop(context):
     for command in commands:
-        command.onStop()
+        command.on_stop()
