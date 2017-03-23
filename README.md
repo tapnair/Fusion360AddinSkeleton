@@ -39,7 +39,7 @@ DemoCommand1 creates a very basic UI and then accesses the input parameters.
 
 ##Some helpful extras:
 
-##_input_values_
+### _input_values_
 
 In the on_execute, on_preview, on_input_changed methods there is a parameter called "input_values"
 
@@ -56,12 +56,12 @@ _Note: you can still access the raw command inputs object with the "inputs" vari
 
 
 
-##_get_app_objects_
+### _get_app_objects_
 
 This is a helper function that returns a dictionary of many useful fusion 360 application objects.
 
 This is the format of the returned dictionary:
-'''
+```
 app_objects = {
         'app': app,
         'design': design,
@@ -75,5 +75,5 @@ app_objects = {
         'export_manager': export_manager,
         'document': document
     }
-'''
+```
 
