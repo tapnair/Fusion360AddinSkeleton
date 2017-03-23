@@ -1,48 +1,50 @@
 # Importing sample Fusion Command
 # Could import multiple Command definitions here
-from .Fusion360Command import Fusion360Command
+from .Demo1Command import Demo1Command
+from .Demo2Command import Demo2Command
 
 commands = []
-command_defs =[]
+command_definitions = []
 
-#### Define parameters for 1st command #####
+# Define parameters for 1st command
 cmd = {
-        'commandName' : 'Demo Command 1',
-        'commandDescription' : 'Demo Command 1 Description',
-        'commandResources' : './resources',
-        'cmdId' : 'cmdID_Demo_1',
-        'workspace' : 'FusionSolidEnvironment',
-        'toolbarPanelID' : 'SolidScriptsAddinsPanel',
-        'class' : Fusion360Command
+    'cmd_name': 'Fusion Demo Command 1',
+    'cmd_description': 'Fusion Demo Command 1 Description',
+    'cmd_id': 'cmdID_demo44',
+    'cmd_resources': './resources',
+    'workspace': 'FusionSolidEnvironment',
+    'toolbar_panel_id': 'SolidScriptsAddinsPanel',
+    'class': Demo1Command
 }
-command_defs.append(cmd)
+command_definitions.append(cmd)
 
-#### Define parameters for 2nd command #####
+# Define parameters for 2nd command
 cmd = {
-        'commandName' : 'Demo Command 2',
-        'commandDescription' : 'Demo Command 2 Description',
-        'commandResources' : './resources',
-        'cmdId' : 'cmdID_Demo_2',
-        'workspace' : 'FusionSurfaceEnvironment',
-        'toolbarPanelID' : 'SurfaceCreatePanel',
-        'class' : Fusion360Command
+    'cmd_name': 'Fusion Demo Command 2',
+    'cmd_description': 'Fusion Demo Command 2 Description',
+    'cmd_id': 'cmdID_demo2',
+    'cmd_resources': './resources',
+    'workspace': 'FusionSolidEnvironment',
+    'toolbar_panel_id': 'SolidScriptsAddinsPanel',
+    'class': Demo2Command
 }
-command_defs.append(cmd)
+command_definitions.append(cmd)
 
 # Set to True to display various useful messages when debugging your app
 debug = False
 
 
 # Don't change anything below here:
-for cmd_def in command_defs:
+for cmd_def in command_definitions:
     command = cmd_def['class'](cmd_def, debug)
     commands.append(command)
 
+
 def run(context):
-    for command in commands:
-        command.on_run()
+    for run_command in commands:
+        run_command.on_run()
 
 
 def stop(context):
-    for command in commands:
-        command.on_stop()
+    for stop_command in commands:
+        stop_command.on_stop()
