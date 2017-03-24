@@ -1,18 +1,23 @@
 # Fusion360AddinSkeleton
 Framework to simplify the creation of Fusion 360 Addin
 
-Documentation to come later. For now:
-
-
+The documentation still needs much work but here is a rough outline of to use the framework:
 
 # Usage
+Download or clone this repo.  
+
+Move the folder into your add-ins directory.  [Click Here](https://tapnair.github.io/installation.html) for more information 
+
 Files in the Fusion360Utilities folder should not be modified.
 
 Rename the following items to your desired addin name: 
-* Fusion360AddinSkeleton.py 
 * The top level folder
+* Fusion360AddinSkeleton.py 
 * Fusion360AddinSkeleton.manifest
 
+Edit the manifest file and update the fields accordingly
+
+# Creating an addin:
 ## Step 1 
 Open the newly renamed python file
 
@@ -37,7 +42,7 @@ onExecute: Will be executed when user selects OK in command dialog.
 
 DemoCommand1 creates a very basic UI and then accesses the input parameters.
 
-##Some helpful extras:
+## Some helpful extras:
 
 ### _input_values_
 
