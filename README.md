@@ -105,5 +105,5 @@ Written by [Patrick Rainsberry](https://twitter.com/prrainsberry) <br /> (Autode
 
 See more useful [Fusion 360 Utilities](https://tapnair.github.io/index.html)
 
-[![Analytics](https://ga-beacon.appspot.com/UA-41076924-3/paramEdit)](https://github.com/igrigorik/ga-beacon)
+[![Analytics](https://ga-beacon.appspot.com/UA-41076924-3/addinSkeleton)](https://github.com/igrigorik/ga-beacon)
 
