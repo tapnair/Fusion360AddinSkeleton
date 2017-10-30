@@ -29,10 +29,22 @@ def get_inputs(command_inputs):
             input_values[command_input.id] = command_input.value
             input_values[command_input.id + '_input'] = command_input
 
+        # TODO need to account for radio and button multi select also
         # If the input type is in this list the name of the selected list item is returned
         elif command_input.objectType in list_types:
-            input_values[command_input.id] = command_input.selectedItem.name
-            input_values[command_input.id + '_input'] = command_input
+            if command_input.objectType == adsk.core.DropDownCommandInput.classType():
+                if command_input.dropDownStyle == adsk.core.DropDownStyles.CheckBoxDropDownStyle:
+                    input_values[command_input.id] = command_input.listItems
+                    input_values[command_input.id + '_input'] = command_input
+
+                else:
+                    if command_input.selectedItem is not None:
+                        input_values[command_input.id] = command_input.selectedItem.name
+                        input_values[command_input.id + '_input'] = command_input
+            else:
+                if command_input.selectedItem is not None:
+                    input_values[command_input.id] = command_input.selectedItem.name
+                    input_values[command_input.id + '_input'] = command_input
 
         # If the input type is a selection an array of entities is returned
         elif command_input.objectType in selection_types:
@@ -98,11 +110,14 @@ def toolbar_panel_by_id_in_workspace(workspace_id, toolbar_panel_id):
     all_toolbar_panels = this_workspace.toolbarPanels
     toolbar_panel = all_toolbar_panels.itemById(toolbar_panel_id)
 
-    if toolbar_panel is not None:
-        return toolbar_panel
-    else:
-        ui.messageBox(toolbar_panel_id + 'is not a valid tool bar')
-        raise ValueError
+    if toolbar_panel is None:
+
+        toolbar_panel = all_toolbar_panels.add(toolbar_panel_id, toolbar_panel_id)
+
+    return toolbar_panel
+
+        # ui.messageBox(toolbar_panel_id + 'is not a valid tool bar')
+        # raise ValueError
 
 
 # Returns the Command Control from the given panel
@@ -156,14 +171,22 @@ class Fusion360CommandBase:
         self.add_to_drop_down = cmd_def.get('add_to_drop_down', False)
         self.drop_down_cmd_id = cmd_def.get('drop_down_cmd_id', 'Default_DC_CmdId')
         self.drop_down_resources = cmd_def.get('drop_down_resources', './resources')
-        self.drop_down_name = cmd_def.get('drop_down_name', './resources')
+        self.drop_down_name = cmd_def.get('drop_down_name', 'Drop Name')
 
         self.command_in_nav_bar = cmd_def.get('command_in_nav_bar', False)
+
+        self.command_visible = cmd_def.get('command_visible', True)
+
+        self.command_promoted = cmd_def.get('command_promoted', False)
 
         self.debug = debug
 
         # global set of event handlers to keep them referenced for the duration of the command
         self.handlers = []
+
+        self.palette_id = ''
+
+        self.add_separator = cmd_def.get('add_separator', False)
 
     def on_preview(self, command, inputs, args, input_values):
         pass
@@ -219,7 +242,20 @@ class Fusion360CommandBase:
                 handlers.append(on_command_created_handler)
 
                 new_control = controls_to_add_to.addCommand(cmd_definition)
-                new_control.isVisible = True
+
+                if self.command_visible:
+                    new_control.isVisible = True
+                else:
+                    new_control.isVisible = False
+
+                if not self.command_in_nav_bar:
+                    if self.command_promoted:
+                        new_control.isPromoted = True
+                    else:
+                        new_control.isPromoted = False
+
+            if self.add_separator:
+                controls_to_add_to.addSeparator()
 
         except:
             if ui:
@@ -251,6 +287,9 @@ class Fusion360CommandBase:
                     destroy_object(drop_down_control)
                     destroy_object(drop_down_definition)
 
+            palette = ui.palettes.itemById(self.palette_id)
+            if palette:
+                palette.deleteMe()
         except:
             if ui:
                 ui.messageBox('AddIn Stop Failed: {}'.format(traceback.format_exc()))
@@ -355,6 +394,7 @@ class CommandExecuteHandler(adsk.core.CommandEventHandler):
             self.cmd_object_.on_execute(command_, command_inputs, args, input_values)
 
         except:
+            print('The error: {}'.format(traceback.format_exc()))
             if ui:
                 ui.messageBox('command executed failed: {}'.format(traceback.format_exc()))
 
