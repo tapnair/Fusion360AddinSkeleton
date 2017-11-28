@@ -61,25 +61,28 @@ _Note: you can still access the raw command inputs object with the "inputs" vari
 
 
 
-### _get_app_objects_
+### _AppObjects_
 
-This is a helper function that returns a dictionary of many useful fusion 360 application objects.
+This is a helper class that can be used to easily access of many useful fusion 360 application objects.
 
-This is the format of the returned dictionary:
-```
-app_objects = {
-        'app': app,
-        'design': design,
-        'import_manager': import_manager,
-        'ui': ui,
-        'units_manager': units_manager,
-        'all_occurrences': all_occurrences,
-        'all_components': all_components,
-        'root_comp': root_comp,
-        'time_line': time_line,
-        'export_manager': export_manager,
-        'document': document
-    }
+It contains many properties:
+* app - Application Object
+* document - Active Document
+* product - Active Product
+* design - Design Product (if it exists)
+* cam - CAM Product (if it exists)
+* ui - User Interface
+* import_manager - Application Import Manager
+* export_manager - Export Manager (if the active product is Design)
+* units_manager - Fusion Units Manager (if the active product is design) or Units Manager
+* root_comp - Root Component (if the active product is design)
+* time_line - (if the active product is design and the type os Parametric Design Type)
+
+Sample usage:
+```python
+from .Fusion360Utilities.Fusion360Utilities import AppObjects
+ao = AppObjects()
+ao.ui.messageBox('Hello World!')
 ```
 
 ## Samples

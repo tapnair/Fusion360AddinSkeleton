@@ -1,13 +1,87 @@
-__author__ = 'Patrick Rainsberry'
-
 import adsk.core
 import adsk.fusion
+import adsk.cam
 import traceback
+
+from typing import Optional, List
+
+
+# Class to quickly access Fusion Application Objects
+class AppObjects(object):
+
+    def __init__(self):
+
+        self.app = adsk.core.Application.cast(adsk.core.Application.get())
+
+        # Get import manager
+        self.import_manager = self.app.importManager
+
+        # Get User Interface
+        self.ui = self.app.userInterface
+
+        self.document = self.app.activeDocument
+        self.product = self.app.activeProduct
+
+        self._design = self.design
+
+    @property
+    def design(self) -> Optional[adsk.fusion.Design]:
+        design_ = self.document.products.itemByProductType('DesignProductType')
+        if design_ is not None:
+            return design_
+        else:
+            return None
+
+    @property
+    def cam(self) -> Optional[adsk.cam.CAM]:
+        cam_ = self.document.products.itemByProductType('CAMProductType')
+        if cam_ is not None:
+            return cam_
+        else:
+            return None
+
+    @property
+    def units_manager(self) -> Optional[adsk.core.UnitsManager]:
+        if self.product.productType == 'DesignProductType':
+            units_manager_ = self._design.fusionUnitsManager
+        else:
+            units_manager_ = self.product.unitsManager
+
+        if units_manager_ is not None:
+            return units_manager_
+        else:
+            return None
+
+    @property
+    def export_manager(self) -> Optional[adsk.fusion.ExportManager]:
+        if self._design is not None:
+            export_manager_ = self._design.exportManager
+            return export_manager_
+        else:
+            return None
+
+    @property
+    def root_comp(self) -> Optional[adsk.fusion.Component]:
+        if self.product.productType == 'DesignProductType':
+            root_comp_ = self.design.rootComponent
+            return root_comp_
+        else:
+            return None
+
+    @property
+    def time_line(self) -> Optional[adsk.fusion.Timeline]:
+        if self.product.productType == 'DesignProductType':
+            if self._design.designType == adsk.fusion.DesignTypes.ParametricDesignType:
+                time_line_ = self.product.timeline
+
+                return time_line_
+
+        return None
 
 
 # Externally usable function to get all relevant application objects easily in a dictionary
+# Old method, shouldn't use any more
 def get_app_objects():
-
     app = adsk.core.Application.cast(adsk.core.Application.get())
 
     # Get import manager
@@ -21,15 +95,28 @@ def get_app_objects():
     design = adsk.fusion.Design.cast(product)
     document = app.activeDocument
 
-    # Get Design specific elements
-    units_manager = design.fusionUnitsManager
-    export_manager = design.exportManager
-    root_comp = design.rootComponent
-    time_line = product.timeline
+    units_manager = None
+    export_manager = None
+    root_comp = None
+    time_line = None
 
     # Get top level collections
-    all_occurrences = root_comp.allOccurrences
-    all_components = design.allComponents
+    all_occurrences = None
+    all_components = None
+
+    if design is not None:
+
+        # Get Design specific elements
+        units_manager = design.fusionUnitsManager
+        export_manager = design.exportManager
+        root_comp = design.rootComponent
+
+        if design.designType == adsk.fusion.DesignTypes.ParametricDesignType:
+            time_line = product.timeline
+
+        # Get top level collections
+        all_occurrences = root_comp.allOccurrences
+        all_components = design.allComponents
 
     app_objects = {
         'app': app,
@@ -47,7 +134,7 @@ def get_app_objects():
     return app_objects
 
 
-def start_group():
+def start_group() -> int:
     """
     Starts a time line group
     :return: The index of the time line
@@ -62,7 +149,7 @@ def start_group():
     return start_index
 
 
-def end_group(start_index):
+def end_group(start_index: int):
     """
     Ends a time line group
     :param start_index: Time line index
@@ -79,7 +166,7 @@ def end_group(start_index):
     app_objects['time_line'].timelineGroups.add(start_index, end_index)
 
 
-def import_dxf(dxf_file, component, plane) -> adsk.core.ObjectCollection:
+def import_dxf(dxf_file, component, plane) -> adsk.fusion.Sketches:
     """
     Import dxf file with one sketch per layer.
     :param dxf_file: The full path to the dxf file
@@ -98,7 +185,7 @@ def import_dxf(dxf_file, component, plane) -> adsk.core.ObjectCollection:
     return sketches
 
 
-def sketch_by_name(sketches, name):
+def sketch_by_name(sketches: adsk.fusion.Sketches, name: str) -> adsk.fusion.Sketch:
     """
     Finds a sketch by name in a list of sketches
     Useful for parsing a collection of  sketches such as DXF import results.
@@ -159,7 +246,9 @@ def create_component(target_component, name) -> adsk.fusion.Occurrence:
 
 
 # Creates rectangle pattern of bodies based on vectors
-def rect_body_pattern(target_component, bodies, x_axis, y_axis, x_qty, x_distance, y_qty, y_distance):
+def rect_body_pattern(target_component, bodies, x_axis, y_axis, x_qty, x_distance, y_qty,
+                      y_distance) -> adsk.core.ObjectCollection:
+
     move_feats = target_component.features.moveFeatures
 
     x_bodies = adsk.core.ObjectCollection.create()
@@ -212,13 +301,15 @@ def rect_body_pattern(target_component, bodies, x_axis, y_axis, x_qty, x_distanc
 # Specify operation as: adsk.fusion.FeatureOperations
 # target_body -> single body
 # tool_bodies -> list of bodies
-def combine_feature(target_body, tool_bodies, operation):
+def combine_feature(target_body: adsk.fusion.BRepBody, tool_bodies: List[adsk.fusion.BRepBody],
+                    operation: adsk.fusion.FeatureOperations):
 
     # Get Combine Features
     combine_features = target_body.parentComponent.features.combineFeatures
 
     # Define a collection and add all tool bodies to it
     combine_tools = adsk.core.ObjectCollection.create()
+
     for tool in tool_bodies:
         # todo add error checking
         combine_tools.add(tool)

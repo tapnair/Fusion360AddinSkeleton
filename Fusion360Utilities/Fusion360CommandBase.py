@@ -184,23 +184,19 @@ class Fusion360CommandBase:
         # global set of event handlers to keep them referenced for the duration of the command
         self.handlers = []
 
-        self.palette_id = ''
-
-        self.add_separator = cmd_def.get('add_separator', False)
-
-    def on_preview(self, command, inputs, args, input_values):
+    def on_preview(self, command: adsk.core.Command, inputs: adsk.core.CommandInputs, args, input_values):
         pass
 
-    def on_destroy(self, command, inputs, reason, input_values):
+    def on_destroy(self, command: adsk.core.Command, inputs: adsk.core.CommandInputs, reason, input_values):
         pass
 
-    def on_input_changed(self, command_, command_inputs, changed_input, input_values):
+    def on_input_changed(self, command: adsk.core.Command, inputs: adsk.core.CommandInputs, changed_input, input_values):
         pass
 
-    def on_execute(self, command, inputs, args, input_values):
+    def on_execute(self, command: adsk.core.Command, inputs: adsk.core.CommandInputs, args, input_values):
         pass
 
-    def on_create(self, command, inputs):
+    def on_create(self, command: adsk.core.Command, inputs: adsk.core.CommandInputs):
         pass
 
     def on_run(self):
@@ -248,14 +244,11 @@ class Fusion360CommandBase:
                 else:
                     new_control.isVisible = False
 
-                if not self.command_in_nav_bar:
-                    if self.command_promoted:
-                        new_control.isPromoted = True
-                    else:
-                        new_control.isPromoted = False
+                if self.command_promoted:
+                    new_control.isPromoted = True
+                else:
+                    new_control.isPromoted = False
 
-            if self.add_separator:
-                controls_to_add_to.addSeparator()
 
         except:
             if ui:
@@ -287,9 +280,6 @@ class Fusion360CommandBase:
                     destroy_object(drop_down_control)
                     destroy_object(drop_down_definition)
 
-            palette = ui.palettes.itemById(self.palette_id)
-            if palette:
-                palette.deleteMe()
         except:
             if ui:
                 ui.messageBox('AddIn Stop Failed: {}'.format(traceback.format_exc()))
@@ -394,7 +384,6 @@ class CommandExecuteHandler(adsk.core.CommandEventHandler):
             self.cmd_object_.on_execute(command_, command_inputs, args, input_values)
 
         except:
-            print('The error: {}'.format(traceback.format_exc()))
             if ui:
                 ui.messageBox('command executed failed: {}'.format(traceback.format_exc()))
 

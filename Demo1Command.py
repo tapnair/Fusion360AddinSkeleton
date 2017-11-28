@@ -2,7 +2,7 @@ import adsk.core
 import adsk.fusion
 import traceback
 
-from .Fusion360Utilities.Fusion360Utilities import get_app_objects
+from .Fusion360Utilities.Fusion360Utilities import AppObjects
 from .Fusion360Utilities.Fusion360CommandBase import Fusion360CommandBase
 
 
@@ -10,7 +10,6 @@ from .Fusion360Utilities.Fusion360CommandBase import Fusion360CommandBase
 # Place your program logic here
 # Delete the line that says "pass" for any method you want to use
 class Demo1Command(Fusion360CommandBase):
-
     # Run whenever a user makes any change to a value or selection in the addin UI
     # Commands in here will be run through the Fusion processor and changes will be reflected in  Fusion graphics area
     def on_preview(self, command, inputs, args, input_values):
@@ -28,8 +27,7 @@ class Demo1Command(Fusion360CommandBase):
 
     # Run when the user presses OK
     # This is typically where your main program logic would go
-    def on_execute(self, command, inputs, args, input_values):
-
+    def on_execute(self, command: adsk.core.Command, inputs: adsk.core.CommandInputs, args, input_values):
         # Get the values from the user input
         the_value = input_values['value_input']
         the_boolean = input_values['bool_input']
@@ -41,26 +39,27 @@ class Demo1Command(Fusion360CommandBase):
         the_selection_name = the_first_selection.name
 
         # Get a reference to all relevant application objects in a dictionary
-        app_objects = get_app_objects()
-        ui = app_objects['ui']
+        ao = AppObjects()
 
-        ui.messageBox('The numeric value you entered was:   {} \n'.format(the_value) +
-                      'The boolean value checked was:       {} \n'.format(the_boolean) +
-                      'The string you typed was:    {} \n'.format(the_string) +
-                      'The name of the first object you selected is:    {}'.format(the_selection_name))
+        converted_value = ao.units_manager.formatInternalValue(the_value, 'in', True)
 
-
+        ao.ui.messageBox('The value, in internal units, you entered was:  {} \n'.format(the_value) +
+                         'The value, in inches, you entered was:  {} \n'.format(converted_value) +
+                         'The boolean value checked was:  {} \n'.format(the_boolean) +
+                         'The string you typed was:  {} \n'.format(the_string) +
+                         'The name of the first object you selected is:  {}'.format(the_selection_name))
 
     # Run when the user selects your command icon from the Fusion 360 UI
     # Typically used to create and display a command dialog box
     # The following is a basic sample of a dialog UI
-    def on_create(self, command, command_inputs):
+    def on_create(self, command: adsk.core.Command, inputs: adsk.core.CommandInputs):
 
         # Create a default value using a string
-        default_value = adsk.core.ValueInput.createByString('1.0 cm')
+        default_value = adsk.core.ValueInput.createByString('1.0 in')
+        ao = AppObjects()
 
         # Create a few inputs in the UI
-        command_inputs.addValueInput('value_input', '***Sample***Value', 'cm', default_value)
-        command_inputs.addBoolValueInput('bool_input', '***Sample***Checked', True)
-        command_inputs.addStringValueInput('string_input', '***Sample***String Value', 'Default value')
-        command_inputs.addSelectionInput('selection_input', '***Sample***Selection', 'Select Something')
+        inputs.addValueInput('value_input', '***Sample***Value', ao.units_manager.defaultLengthUnits, default_value)
+        inputs.addBoolValueInput('bool_input', '***Sample***Checked', True)
+        inputs.addStringValueInput('string_input', '***Sample***String Value', 'Default value')
+        inputs.addSelectionInput('selection_input', '***Sample***Selection', 'Select Something')

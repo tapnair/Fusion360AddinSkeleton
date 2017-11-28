@@ -26,6 +26,8 @@ cmd = {
     'cmd_resources': './resources',
     'workspace': 'FusionSolidEnvironment',
     'toolbar_panel_id': 'SolidScriptsAddinsPanel',
+    'command_visible': True,
+    'command_promoted': True,
     'class': Demo2Command
 }
 command_definitions.append(cmd)
