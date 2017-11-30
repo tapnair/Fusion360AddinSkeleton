@@ -85,6 +85,23 @@ ao = AppObjects()
 ao.ui.messageBox('Hello World!')
 ```
 
+
+## HTML Palettes
+A useful user interface component in the Fusion 360 API is a Palette.
+This gives you the ability to display a web page in Fusion 360 and interact with the application from it.
+You can send events from the Palette to Fusion and from FUsion to the web page.
+
+![Palette Command](./resources/palette.png)
+
+To use this functionality open DemoPaletteCommand.py
+
+There are three methods to work with:
+
+* on_palette_execute: Run when the command executes and launches the Palette.
+* on_html_event: Run every time an event is fired from the HTML Page
+* on_palette_close: Run when the user closes the Palette
+
+
 ## Samples
 
 The following are references that implement this methodology:

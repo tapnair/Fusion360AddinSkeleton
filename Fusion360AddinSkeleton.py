@@ -2,6 +2,7 @@
 # Could import multiple Command definitions here
 from .Demo1Command import Demo1Command
 from .Demo2Command import Demo2Command
+from .DemoPaletteCommand import DemoPaletteShowCommand, DemoPaletteSendCommand
 
 commands = []
 command_definitions = []
@@ -29,6 +30,38 @@ cmd = {
     'command_visible': True,
     'command_promoted': True,
     'class': Demo2Command
+}
+command_definitions.append(cmd)
+
+# Define parameters for 2nd command
+cmd = {
+    'cmd_name': 'Fusion Palette Demo Command',
+    'cmd_description': 'Fusion Demo Palette Description',
+    'cmd_id': 'cmdID_palette_demo',
+    'cmd_resources': './resources',
+    'workspace': 'FusionSolidEnvironment',
+    'toolbar_panel_id': 'SolidScriptsAddinsPanel',
+    'command_visible': True,
+    'command_promoted': False,
+    'palette_id': 'demo_palette_id',
+    'palette_name': 'Demo Palette Name',
+    'palette_html_file_url': 'demo.html',
+    'class': DemoPaletteShowCommand
+}
+command_definitions.append(cmd)
+
+# Define parameters for 2nd command
+cmd = {
+    'cmd_name': 'Fusion Palette Send Command',
+    'cmd_description': 'Send info to Fusion 360 Palette',
+    'cmd_id': 'cmdID_palette_send_demo',
+    'cmd_resources': './resources',
+    'workspace': 'FusionSolidEnvironment',
+    'toolbar_panel_id': 'SolidScriptsAddinsPanel',
+    'command_visible': True,
+    'command_promoted': False,
+    'palette_id': 'demo_palette_id',
+    'class': DemoPaletteSendCommand
 }
 command_definitions.append(cmd)
 
