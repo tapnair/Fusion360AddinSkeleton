@@ -46,6 +46,11 @@ cmd = {
     'palette_id': 'demo_palette_id',
     'palette_name': 'Demo Palette Name',
     'palette_html_file_url': 'demo.html',
+    'palette_is_visible': True,
+    'palette_show_close_button': True,
+    'palette_is_resizable': True,
+    'palette_width': 500,
+    'palette_height': 600,
     'class': DemoPaletteShowCommand
 }
 command_definitions.append(cmd)
@@ -67,7 +72,6 @@ command_definitions.append(cmd)
 
 # Set to True to display various useful messages when debugging your app
 debug = False
-
 
 # Don't change anything below here:
 for cmd_def in command_definitions:

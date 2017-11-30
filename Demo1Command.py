@@ -12,22 +12,23 @@ from .Fusion360Utilities.Fusion360CommandBase import Fusion360CommandBase
 class Demo1Command(Fusion360CommandBase):
     # Run whenever a user makes any change to a value or selection in the addin UI
     # Commands in here will be run through the Fusion processor and changes will be reflected in  Fusion graphics area
-    def on_preview(self, command, inputs, args, input_values):
+    def on_preview(self, command: adsk.core.Command, inputs: adsk.core.CommandInputs, args, input_values):
         pass
 
     # Run after the command is finished.
     # Can be used to launch another command automatically or do other clean up.
-    def on_destroy(self, command, inputs, reason, input_values):
+    def on_destroy(self, command: adsk.core.Command, inputs: adsk.core.CommandInputs, reason, input_values):
         pass
 
     # Run when any input is changed.
     # Can be used to check a value and then update the add-in UI accordingly
-    def on_input_changed(self, command_, command_inputs, changed_input, input_values):
+    def on_input_changed(self, command: adsk.core.Command, inputs: adsk.core.CommandInputs, changed_input, input_values):
         pass
 
     # Run when the user presses OK
     # This is typically where your main program logic would go
     def on_execute(self, command: adsk.core.Command, inputs: adsk.core.CommandInputs, args, input_values):
+
         # Get the values from the user input
         the_value = input_values['value_input']
         the_boolean = input_values['bool_input']

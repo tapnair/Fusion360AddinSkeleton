@@ -15,7 +15,8 @@ class DemoPaletteShowCommand(Fusion360PaletteCommandBase):
     def on_palette_execute(self, palette: adsk.core.Palette):
 
         # Dock the palette to the right side of Fusion window.
-        palette.dockingState = adsk.core.PaletteDockingStates.PaletteDockStateRight
+        if palette.dockingState == adsk.core.PaletteDockingStates.PaletteDockStateFloating:
+            palette.dockingState = adsk.core.PaletteDockingStates.PaletteDockStateRight
 
     # Run when ever a fusion event is fired from the corresponding web page
     def on_html_event(self, html_args: adsk.core.HTMLEventArgs):
