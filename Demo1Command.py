@@ -10,6 +10,7 @@ from .Fusion360Utilities.Fusion360CommandBase import Fusion360CommandBase
 # Place your program logic here
 # Delete the line that says "pass" for any method you want to use
 class Demo1Command(Fusion360CommandBase):
+
     # Run whenever a user makes any change to a value or selection in the addin UI
     # Commands in here will be run through the Fusion processor and changes will be reflected in  Fusion graphics area
     def on_preview(self, command: adsk.core.Command, inputs: adsk.core.CommandInputs, args, input_values):
@@ -23,7 +24,16 @@ class Demo1Command(Fusion360CommandBase):
     # Run when any input is changed.
     # Can be used to check a value and then update the add-in UI accordingly
     def on_input_changed(self, command: adsk.core.Command, inputs: adsk.core.CommandInputs, changed_input, input_values):
-        pass
+
+        # Selections are returned as a list so lets get the first one
+        all_selections = input_values.get('selection_input', None)
+
+        if all_selections is not None:
+            the_first_selection = all_selections[0]
+
+            # Update the text of the string value input to show the type of object selected
+            text_box_input = inputs.itemById('text_box_input')
+            text_box_input.text = the_first_selection.objectType
 
     # Run when the user presses OK
     # This is typically where your main program logic would go
@@ -37,7 +47,7 @@ class Demo1Command(Fusion360CommandBase):
 
         # Selections are returned as a list so lets get the first one and its name
         the_first_selection = all_selections[0]
-        the_selection_name = the_first_selection.name
+        the_selection_type = the_first_selection.objectType
 
         # Get a reference to all relevant application objects in a dictionary
         ao = AppObjects()
@@ -48,7 +58,7 @@ class Demo1Command(Fusion360CommandBase):
                          'The value, in inches, you entered was:  {} \n'.format(converted_value) +
                          'The boolean value checked was:  {} \n'.format(the_boolean) +
                          'The string you typed was:  {} \n'.format(the_string) +
-                         'The name of the first object you selected is:  {}'.format(the_selection_name))
+                         'The type of the first object you selected is:  {}'.format(the_selection_type))
 
     # Run when the user selects your command icon from the Fusion 360 UI
     # Typically used to create and display a command dialog box
@@ -59,8 +69,8 @@ class Demo1Command(Fusion360CommandBase):
         default_value = adsk.core.ValueInput.createByString('1.0 in')
         ao = AppObjects()
 
-        # Create a few inputs in the UI
-        inputs.addValueInput('value_input', '***Sample***Value', ao.units_manager.defaultLengthUnits, default_value)
-        inputs.addBoolValueInput('bool_input', '***Sample***Checked', True)
-        inputs.addStringValueInput('string_input', '***Sample***String Value', 'Default value')
-        inputs.addSelectionInput('selection_input', '***Sample***Selection', 'Select Something')
+        inputs.addValueInput('value_input', '*Sample* Value Input', ao.units_manager.defaultLengthUnits, default_value)
+        inputs.addBoolValueInput('bool_input', '*Sample* Check Box', True)
+        inputs.addStringValueInput('string_input', '*Sample* String Value', 'Some Default Value')
+        inputs.addSelectionInput('selection_input', '*Sample* Selection', 'Select Something')
+        inputs.addTextBoxCommandInput('text_box_input', 'Selection Type: ', 'Nothing Selected', 1, True)

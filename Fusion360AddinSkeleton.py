@@ -11,7 +11,7 @@ command_definitions = []
 cmd = {
     'cmd_name': 'Fusion Demo Command 1',
     'cmd_description': 'Fusion Demo Command 1 Description',
-    'cmd_id': 'cmdID_demo44',
+    'cmd_id': 'cmdID_demo_1',
     'cmd_resources': './resources',
     'workspace': 'FusionSolidEnvironment',
     'toolbar_panel_id': 'SolidScriptsAddinsPanel',
@@ -23,10 +23,10 @@ command_definitions.append(cmd)
 cmd = {
     'cmd_name': 'Fusion Demo Command 2',
     'cmd_description': 'Fusion Demo Command 2 Description',
-    'cmd_id': 'cmdID_demo2',
+    'cmd_id': 'cmdID_demo_2',
     'cmd_resources': './resources',
     'workspace': 'FusionSolidEnvironment',
-    'toolbar_panel_id': 'SolidScriptsAddinsPanel',
+    'toolbar_panel_id': 'SolidCreatePanel',
     'command_visible': True,
     'command_promoted': True,
     'class': Demo2Command
@@ -37,7 +37,7 @@ command_definitions.append(cmd)
 cmd = {
     'cmd_name': 'Fusion Palette Demo Command',
     'cmd_description': 'Fusion Demo Palette Description',
-    'cmd_id': 'cmdID_palette_demo',
+    'cmd_id': 'cmdID_palette_demo_1',
     'cmd_resources': './resources',
     'workspace': 'FusionSolidEnvironment',
     'toolbar_panel_id': 'SolidScriptsAddinsPanel',
@@ -59,7 +59,7 @@ command_definitions.append(cmd)
 cmd = {
     'cmd_name': 'Fusion Palette Send Command',
     'cmd_description': 'Send info to Fusion 360 Palette',
-    'cmd_id': 'cmdID_palette_send_demo',
+    'cmd_id': 'cmdID_palette_send_demo_1',
     'cmd_resources': './resources',
     'workspace': 'FusionSolidEnvironment',
     'toolbar_panel_id': 'SolidScriptsAddinsPanel',
