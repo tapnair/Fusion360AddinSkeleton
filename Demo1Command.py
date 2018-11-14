@@ -73,4 +73,14 @@ class Demo1Command(Fusion360CommandBase):
         inputs.addBoolValueInput('bool_input', '*Sample* Check Box', True)
         inputs.addStringValueInput('string_input', '*Sample* String Value', 'Some Default Value')
         inputs.addSelectionInput('selection_input', '*Sample* Selection', 'Select Something')
+
+        # Read Only Text Box
         inputs.addTextBoxCommandInput('text_box_input', 'Selection Type: ', 'Nothing Selected', 1, True)
+
+        # Create a Drop Down
+        drop_down_input = inputs.addDropDownCommandInput('drop_down_input', '*Sample* Drop Down',
+                                                         adsk.core.DropDownStyles.TextListDropDownStyle)
+        drop_down_items = drop_down_input.listItems
+        drop_down_items.add('List_Item_1', True, '')
+        drop_down_items.add('List_Item_2', False, '')
+
