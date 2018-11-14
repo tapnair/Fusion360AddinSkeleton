@@ -26,13 +26,13 @@ class Demo1Command(Fusion360CommandBase):
     def on_input_changed(self, command: adsk.core.Command, inputs: adsk.core.CommandInputs, changed_input, input_values):
 
         # Selections are returned as a list so lets get the first one
-        all_selections = input_values.get('selection_input', None)
+        all_selections = input_values.get('selection_input_id', None)
 
         if all_selections is not None:
             the_first_selection = all_selections[0]
 
             # Update the text of the string value input to show the type of object selected
-            text_box_input = inputs.itemById('text_box_input')
+            text_box_input = inputs.itemById('text_box_input_id')
             text_box_input.text = the_first_selection.objectType
 
     # Run when the user presses OK
@@ -40,10 +40,11 @@ class Demo1Command(Fusion360CommandBase):
     def on_execute(self, command: adsk.core.Command, inputs: adsk.core.CommandInputs, args, input_values):
 
         # Get the values from the user input
-        the_value = input_values['value_input']
-        the_boolean = input_values['bool_input']
-        the_string = input_values['string_input']
-        all_selections = input_values['selection_input']
+        the_value = input_values['value_input_id']
+        the_boolean = input_values['bool_input_id']
+        the_string = input_values['string_input_id']
+        all_selections = input_values['selection_input_id']
+        the_drop_down = input_values['drop_down_input_id']
 
         # Selections are returned as a list so lets get the first one and its name
         the_first_selection = all_selections[0]
@@ -58,7 +59,9 @@ class Demo1Command(Fusion360CommandBase):
                          'The value, in inches, you entered was:  {} \n'.format(converted_value) +
                          'The boolean value checked was:  {} \n'.format(the_boolean) +
                          'The string you typed was:  {} \n'.format(the_string) +
-                         'The type of the first object you selected is:  {}'.format(the_selection_type))
+                         'The type of the first object you selected is:  {} \n'.format(the_selection_type) +
+                         'The drop down item you selected is:  {}'.format(the_drop_down)
+                         )
 
     # Run when the user selects your command icon from the Fusion 360 UI
     # Typically used to create and display a command dialog box
@@ -66,19 +69,21 @@ class Demo1Command(Fusion360CommandBase):
     def on_create(self, command: adsk.core.Command, inputs: adsk.core.CommandInputs):
 
         # Create a default value using a string
-        default_value = adsk.core.ValueInput.createByString('1.0 in')
         ao = AppObjects()
+        default_value = adsk.core.ValueInput.createByString('1.0 in')
+        default_units = ao.units_manager.defaultLengthUnits
+        inputs.addValueInput('value_input_id', '*Sample* Value Input', default_units, default_value)
 
-        inputs.addValueInput('value_input', '*Sample* Value Input', ao.units_manager.defaultLengthUnits, default_value)
-        inputs.addBoolValueInput('bool_input', '*Sample* Check Box', True)
-        inputs.addStringValueInput('string_input', '*Sample* String Value', 'Some Default Value')
-        inputs.addSelectionInput('selection_input', '*Sample* Selection', 'Select Something')
+        # Other Input types
+        inputs.addBoolValueInput('bool_input_id', '*Sample* Check Box', True)
+        inputs.addStringValueInput('string_input_id', '*Sample* String Value', 'Some Default Value')
+        inputs.addSelectionInput('selection_input_id', '*Sample* Selection', 'Select Something')
 
         # Read Only Text Box
-        inputs.addTextBoxCommandInput('text_box_input', 'Selection Type: ', 'Nothing Selected', 1, True)
+        inputs.addTextBoxCommandInput('text_box_input_id', 'Selection Type: ', 'Nothing Selected', 1, True)
 
         # Create a Drop Down
-        drop_down_input = inputs.addDropDownCommandInput('drop_down_input', '*Sample* Drop Down',
+        drop_down_input = inputs.addDropDownCommandInput('drop_down_input_id', '*Sample* Drop Down',
                                                          adsk.core.DropDownStyles.TextListDropDownStyle)
         drop_down_items = drop_down_input.listItems
         drop_down_items.add('List_Item_1', True, '')
