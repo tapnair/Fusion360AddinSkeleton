@@ -173,6 +173,7 @@ class Fusion360CommandBase:
         self.command_in_nav_bar = cmd_def.get('command_in_nav_bar', False)
 
         self.command_visible = cmd_def.get('command_visible', True)
+        self.command_enabled = cmd_def.get('command_enabled', True)
 
         self.command_promoted = cmd_def.get('command_promoted', False)
 
@@ -201,7 +202,7 @@ class Fusion360CommandBase:
 
         return CommandCreatedEventHandler(self)
 
-    def on_run(self):
+    def add_command(self, this_workspace):
         global handlers
 
         app = adsk.core.Application.cast(adsk.core.Application.get())
@@ -211,7 +212,7 @@ class Fusion360CommandBase:
 
             cmd_definitions = ui.commandDefinitions
 
-            controls_to_add_to = get_controls(self.command_in_nav_bar, self.workspace, self.toolbar_panel_id, ui)
+            controls_to_add_to = get_controls(self.command_in_nav_bar, this_workspace, self.toolbar_panel_id, ui)
 
             # Add to a drop down
             if self.add_to_drop_down:
@@ -235,9 +236,9 @@ class Fusion360CommandBase:
                                                                          self.cmd_description,
                                                                          self.cmd_resources)
 
-                on_command_created_handler = self.get_create_event()
-                cmd_definition.commandCreated.add(on_command_created_handler)
-                handlers.append(on_command_created_handler)
+                    on_command_created_handler = self.get_create_event()
+                    cmd_definition.commandCreated.add(on_command_created_handler)
+                    handlers.append(on_command_created_handler)
 
                 new_control = controls_to_add_to.addCommand(cmd_definition)
 
@@ -246,23 +247,29 @@ class Fusion360CommandBase:
                 else:
                     new_control.isVisible = False
 
+                if self.command_enabled:
+                    cmd_definition.controlDefinition.isEnabled = True
+                else:
+                    cmd_definition.controlDefinition.isEnabled = False
+
                 if self.command_promoted:
                     new_control.isPromoted = True
                 else:
-                    new_control.isPromoted = False
-
+                    if not self.command_in_nav_bar:
+                        new_control.isPromoted = False
 
         except:
             if ui:
                 ui.messageBox('AddIn Start Failed: {}'.format(traceback.format_exc()))
 
-    def on_stop(self):
+    def remove_command(self, workspace):
+
         app = adsk.core.Application.cast(adsk.core.Application.get())
         ui = app.userInterface
 
         try:
 
-            controls_to_delete_from = get_controls(self.command_in_nav_bar, self.workspace, self.toolbar_panel_id, ui)
+            controls_to_delete_from = get_controls(self.command_in_nav_bar, workspace, self.toolbar_panel_id, ui)
 
             # If it is in a drop down
             if self.add_to_drop_down:
@@ -285,6 +292,26 @@ class Fusion360CommandBase:
         except:
             if ui:
                 ui.messageBox('AddIn Stop Failed: {}'.format(traceback.format_exc()))
+
+    def on_run(self):
+
+        if isinstance(self.workspace, str):
+            self.add_command(self.workspace)
+        elif all(isinstance(item, str) for item in self.workspace):
+            for workspace in self.workspace:
+                self.add_command(workspace)
+        else:
+            raise TypeError  # or something along that line
+
+    def on_stop(self):
+
+        if isinstance(self.workspace, str):
+            self.remove_command(self.workspace)
+        elif all(isinstance(item, str) for item in self.workspace):
+            for workspace in self.workspace:
+                self.remove_command(workspace)
+        else:
+            raise TypeError  # or something along that line
 
 
 # Base Class for creating Fusion 360 Commands
@@ -311,6 +338,15 @@ class Fusion360PaletteCommandBase(Fusion360CommandBase):
 
     def on_palette_execute(self, palette: adsk.core.Palette):
         pass
+
+    def on_stop(self):
+        app = adsk.core.Application.cast(adsk.core.Application.get())
+        ui = app.userInterface
+        palette = ui.palettes.itemById(self.palette_id)
+
+        if palette:
+            destroy_object(palette)
+        super().on_stop()
 
 
 class ExecutePreviewHandler(adsk.core.CommandEventHandler):
@@ -514,14 +550,14 @@ class PaletteCommandExecuteHandler(adsk.core.CommandEventHandler):
                                           self.cmd_object_.palette_height)
 
                 # Add handler to HTMLEvent of the palette.
-                on_html_event = HTMLEventHandler(self.cmd_object_)
-                palette.incomingFromHTML.add(on_html_event)
-                handlers.append(on_html_event)
+                on_html_event_handler = HTMLEventHandler(self.cmd_object_)
+                palette.incomingFromHTML.add(on_html_event_handler)
+                handlers.append(on_html_event_handler)
 
                 # Add handler to CloseEvent of the palette.
-                on_closed = CloseEventHandler(self.cmd_object_)
-                palette.closed.add(on_closed)
-                handlers.append(on_closed)
+                on_closed_handler = CloseEventHandler(self.cmd_object_)
+                palette.closed.add(on_closed_handler)
+                handlers.append(on_closed_handler)
             else:
                 palette.isVisible = True
 
@@ -543,6 +579,7 @@ class HTMLEventHandler(adsk.core.HTMLEventHandler):
         ui = app.userInterface
 
         try:
+            # ui.messageBox("in event")
             html_args = adsk.core.HTMLEventArgs.cast(args)
 
             self.cmd_object_.on_html_event(html_args)
@@ -572,3 +609,52 @@ class CloseEventHandler(adsk.core.UserInterfaceGeneralEventHandler):
 
         except:
             ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
+
+
+# Event handler for the documentActivated event.
+class MyDocumentActivatedHandler(adsk.core.DocumentEventHandler):
+    def __init__(self, execution_function):
+
+        super().__init__()
+
+        # self.execution_function = execution_function
+
+    def notify(self, args):
+        app = adsk.core.Application.cast(adsk.core.Application.get())
+        ui = app.userInterface
+        ui.messageBox("here")
+        event_args = adsk.core.DocumentEventArgs.cast(args)
+
+        # self.execution_function(event_args)
+
+        # Code to react to the event.
+        ui.messageBox('In MyDocumentActivatedHandler event handler.')
+
+
+def create_document_event(execution_function):
+    app = adsk.core.Application.cast(adsk.core.Application.get())
+    # "application_var" is a variable referencing an Application object.
+    on_document_activated = MyDocumentActivatedHandler(execution_function)
+    app.documentActivated.add(on_document_activated)
+    handlers.append(on_document_activated)
+
+# Event handler for the workspaceActivated event.
+class MyWorkspaceActivatedHandler(adsk.core.WorkspaceEventHandler):
+    def __init__(self):
+        super().__init__()
+    def notify(self, args):
+        app = adsk.core.Application.cast(adsk.core.Application.get())
+        ui = app.userInterface
+        eventArgs = adsk.core.WorkspaceEventArgs.cast(args)
+
+        # Code to react to the event.
+        ui.messageBox('In MyWorkspaceActivatedHandler event handler.')
+
+
+def create_workspace_event(execution_function):
+    app = adsk.core.Application.cast(adsk.core.Application.get())
+    ui = app.userInterface
+    # "userInterface_var" is a variable referencing a UserInterface object.
+    onWorkspaceActivated = MyWorkspaceActivatedHandler()
+    ui.workspaceActivated.add(onWorkspaceActivated)
+    handlers.append(onWorkspaceActivated)

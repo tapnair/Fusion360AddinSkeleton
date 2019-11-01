@@ -5,6 +5,12 @@ import traceback
 
 from typing import Optional, List
 
+import os
+from os.path import expanduser
+import json
+
+import time
+
 
 # Class to quickly access Fusion Application Objects
 class AppObjects(object):
@@ -318,3 +324,81 @@ def combine_feature(target_body: adsk.fusion.BRepBody, tool_bodies: List[adsk.fu
     combine_input = combine_features.createInput(target_body, combine_tools)
     combine_input.operation = operation
     combine_features.add(combine_input)
+
+
+# Get default directory
+def get_default_dir(app_name):
+
+    # Get user's home directory
+    default_dir = expanduser("~")
+
+    # Create a subdirectory for this application settings
+    default_dir = os.path.join(default_dir, app_name, "")
+
+    # Create the folder if it does not exist
+    if not os.path.exists(default_dir):
+        os.makedirs(default_dir)
+
+    return default_dir
+
+
+def get_settings_file(app_name):
+    default_dir = get_default_dir(app_name)
+    file_name = os.path.join(default_dir, ".settings.json")
+    return file_name
+
+
+# Write App Settings
+def write_settings(app_name, settings):
+
+    settings_text = json.dumps(settings)
+    file_name = get_settings_file(app_name)
+
+    f = open(file_name, "w")
+    f.write(settings_text)
+    f.close()
+
+
+# Read App Settings
+def read_settings(app_name):
+    file_name = get_settings_file(app_name)
+    if os.path.exists(file_name):
+        with open(file_name) as f:
+            try:
+                settings = json.load(f)
+            except:
+                settings = {}
+    else:
+        settings = {}
+
+    return settings
+
+
+# Creates directory and returns file name for log file
+def get_log_file_name(app_name):
+    default_dir = get_default_dir(app_name)
+
+    log_dir = os.path.join(default_dir, "logs", "")
+
+    if not os.path.exists(log_dir):
+        os.makedirs(log_dir)
+
+    time_stamp = time.strftime("%Y-%m-%d-%H-%M-%S", time.gmtime())
+
+    # Create file name in this path
+    log_file_name = app_name + '-Log-' + time_stamp + '.txt'
+
+    file_name = os.path.join(log_dir, log_file_name)
+
+    return file_name
+
+
+def open_doc(data_file):
+    app = adsk.core.Application.get()
+
+    try:
+        document = app.documents.open(data_file, True)
+        if document is not None:
+            document.activate()
+    except:
+        pass
