@@ -1,9 +1,13 @@
 # Fusion360AddinSkeleton
 Framework to simplify the creation of Fusion 360 Addin
 
-The documentation still needs much work but here is a rough outline of to use the framework:
+# *Notice:* This utility has been deprecated.  Please see the latest version here: [Apper](https://apper.readthedocs.io)
+[Apper](https://apper.readthedocs.io) is a framework to simplify the creation of Fusion 360 Addin.
 
-# Usage
+
+# -- OLD DOCS left for posterity --
+
+## Usage
 Download or clone this repo.  
 
 Move the folder into your add-ins directory.  [Click Here](https://tapnair.github.io/installation.html) for more information 
@@ -17,8 +21,8 @@ Rename the following items to your desired addin name:
 
 Edit the manifest file and update the fields accordingly
 
-# Creating an addin:
-## Step 1 
+## Creating an addin:
+### Step 1 
 Open the newly renamed python file
 
 The current file will create two commands in the Fusion 360 UI in the Addins Drop Down
@@ -32,7 +36,7 @@ If you want to rename the files that define the names of the commands you must d
 ![Rename Command](./resources/rename_command.png)
 
 
-## Step 2
+### Step 2
 
 Edit Demo1Command.py and add functionality to the desired methods.  
 
@@ -86,7 +90,7 @@ ao.ui.messageBox('Hello World!')
 ```
 
 
-## HTML Palettes
+### HTML Palettes
 A useful user interface component in the Fusion 360 API is a Palette.
 This gives you the ability to display a web page in Fusion 360 and interact with the application from it.
 You can send events from the Palette to Fusion and from FUsion to the web page.
