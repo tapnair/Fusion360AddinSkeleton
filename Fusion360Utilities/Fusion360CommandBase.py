@@ -600,11 +600,6 @@ class CloseEventHandler(adsk.core.UserInterfaceGeneralEventHandler):
         ui = app.userInterface
 
         try:
-            # Delete the palette created by this add-in.
-            palette = ui.palettes.itemById(self.cmd_object_.palette_id)
-            if palette:
-                palette.deleteMe()
-                # _ui.messageBox('Close button is clicked.')
             self.cmd_object_.on_palette_close()
 
         except:
